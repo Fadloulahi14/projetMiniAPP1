@@ -1,0 +1,71 @@
+{
+  "setting": {
+    "urlCheck": false,
+    "es6": true,
+    "postcss": false,
+    "minified": true,
+    "newFeature": true,
+    "autoAudits": false,
+    "nodeModules": true,
+    "uploadWithSourceMap": true,
+    "uglifyFileName": true,
+    "remoteDebugLogEnable": true,
+    "prefetch": false,
+    "compileWorklet": false,
+    "enhance": false,
+    "packNpmManually": false,
+    "packNpmRelationList": [],
+    "minifyWXSS": true,
+    "minifyWXML": true,
+    "localPlugins": false,
+    "disableUseStrict": false,
+    "useCompilerPlugins": false,
+    "condition": false,
+    "swc": false,
+    "disableSWC": true,
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    }
+  },
+  "TCMPPLibVersion": "2.2.4",
+  "compileType": "miniprogram",
+  "createTime": 1747392594781,
+  "accessTime": 1747392594781,
+  "packOptions": {
+    "ignore": [],
+    "include": []
+  },
+  "projectname": "TCMPP%20Boilerplate",
+  "permission": {
+    "scope.album": {
+      "desc": "Used to select media from album"
+    },
+    "scope.camera": {
+      "desc": "Used to capture photos or videos"
+    }
+  },
+  "SASappid": "mp1vl29c7w1xcmbo",
+  "condition": {
+    "search": {
+      "current": -1,
+      "list": []
+    },
+    "conversation": {
+      "current": -1,
+      "list": []
+    },
+    "game": {
+      "currentL": -1,
+      "list": []
+    },
+    "miniprogram": {
+      "current": -1,
+      "list": []
+    }
+  },
+  "appid": "touristappid",
+  "simulatorPluginLibVersion": {},
+  "editorSetting": {}
+}

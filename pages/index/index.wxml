@@ -1,0 +1,89 @@
+<view class="d-flex flex-column w-100" style="min-height: 100vh; background: #f8f9fa;">
+  <!-- Custom Navigation Bar -->
+  <app-nav-bar title="TCMPP Boilerplate" showBack="{{ false }}" />
+
+  <!-- Page Content -->
+  <view class="d-flex flex-column gap-3 p-3" style="flex: 1;">
+
+    <!-- Welcome Section -->
+    <view class="d-flex flex-column gap-2" style="padding: 32rpx 0;">
+      <app-typography size="24" weight="700" color="#333">
+        Welcome, {{ userName }}
+      </app-typography>
+
+      <app-typography size="14" color="#666">
+        This boilerplate provides production-ready patterns for TCMPP mini-apps.
+      </app-typography>
+    </view>
+
+    <!-- Feature Cards -->
+    <app-card>
+      <view class="d-flex flex-column gap-2 p-3">
+        <app-typography size="16" weight="600" color="#333">
+          EventBus State Management
+        </app-typography>
+        <app-typography size="13" color="#666">
+          Cross-page communication with state history, middleware, and namespaces.
+        </app-typography>
+      </view>
+    </app-card>
+
+    <app-card>
+      <view class="d-flex flex-column gap-2 p-3">
+        <app-typography size="16" weight="600" color="#333">
+          HTTP Client + Auth
+        </app-typography>
+        <app-typography size="13" color="#666">
+          Session tracking, auto-authentication, unified response format.
+        </app-typography>
+      </view>
+    </app-card>
+
+    <app-card>
+      <view class="d-flex flex-column gap-2 p-3">
+        <app-typography size="16" weight="600" color="#333">
+          Data Transformation (Sculpt)
+        </app-typography>
+        <app-typography size="13" color="#666">
+          Declarative JSON mapping for clean API response transformation.
+        </app-typography>
+      </view>
+    </app-card>
+
+    <!-- Action Buttons -->
+    <view class="d-flex flex-column gap-2" style="margin-top: 16rpx;">
+      <app-button type="primary" bind:onPress="handleNavigateDemo">
+        View Component Demo
+      </app-button>
+
+      <app-button type="secondary" bind:onPress="handleToggleModal">
+        Open Modal
+      </app-button>
+    </view>
+  </view>
+
+  <!-- Modal Demo -->
+  <app-modal
+    visible="{{ showModal }}"
+    placement="center"
+    size="md"
+    hasHeader="{{ true }}"
+    hasContent="{{ true }}"
+    hasFooter="{{ true }}"
+    bind:close="handleCloseModal"
+  >
+    <view slot="header">
+      <app-typography size="16" weight="700">Modal Title</app-typography>
+    </view>
+    <view slot="content">
+      <app-typography size="14" color="#666">
+        This is a reusable modal component. It supports center and bottom sheet placement, backdrop blur, and header/content/footer slots.
+      </app-typography>
+    </view>
+    <view slot="footer">
+      <app-button type="primary" bind:onPress="handleCloseModal">
+        Close
+      </app-button>
+    </view>
+  </app-modal>
+</view>
