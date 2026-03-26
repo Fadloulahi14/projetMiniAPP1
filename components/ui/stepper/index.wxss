@@ -24,7 +24,7 @@
 
 .osn-stepper__step--active {
   background: #fff;
-  border: 2rpx solid var(--bs-primary, #085EBD);
+  border: 2rpx solid #085EBD;
   box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.08);
 }
 
@@ -42,7 +42,6 @@
 }
 
 .osn-stepper__step--clickable {
-  cursor: pointer;
 }
 
 /* --- Indicator circle --- */
@@ -60,12 +59,12 @@
 }
 
 .osn-stepper__step--active .osn-stepper__indicator {
-  background-color: var(--bs-primary, #085EBD);
+  background-color: #085EBD;
   color: #fff;
 }
 
 .osn-stepper__step--completed .osn-stepper__indicator {
-  background-color: var(--bs-primary, #085EBD);
+  background-color: #085EBD;
   border: none;
   color: #fff;
 }
@@ -103,12 +102,12 @@
 }
 
 .osn-stepper__step--active .osn-stepper__label {
-  color: var(--bs-primary, #085EBD);
+  color: #085EBD;
   font-weight: 700;
 }
 
 .osn-stepper__step--completed .osn-stepper__label {
-  color: var(--bs-primary, #085EBD);
+  color: #085EBD;
   font-weight: 600;
 }
 
@@ -129,7 +128,7 @@
 }
 
 .osn-stepper__line--completed {
-  background: var(--bs-primary, #085EBD);
+  background: #085EBD;
 }
 
 /* ============================================================================
@@ -143,12 +142,12 @@
 }
 
 .osn-stepper--pill .osn-stepper__step--active {
-  border-color: var(--bs-primary, #085EBD);
+  border-color: #085EBD;
   background: #fff;
 }
 
 .osn-stepper--pill .osn-stepper__step--completed {
-  border-color: var(--bs-primary, #085EBD);
+  border-color: #085EBD;
   background-color: rgba(8, 94, 189, 0.05);
 }
 

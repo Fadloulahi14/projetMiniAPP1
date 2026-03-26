@@ -10,13 +10,5 @@
     "navigationBarTitleText": "TCMPP Boilerplate",
     "navigationBarTextStyle": "black",
     "navigationStyle": "custom"
-  },
-  "permission": {
-    "scope.camera": {
-      "desc": "Need camera access to take photos or videos"
-    },
-    "scope.album": {
-      "desc": "Need photo album access to select media"
-    }
   }
 }

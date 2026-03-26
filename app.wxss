@@ -9,62 +9,30 @@
    ============================================================================ */
 
 /* ==========================================================================
-   1. CSS VARIABLES
-   ========================================================================== */
-
-page {
-  --bs-blue: #085EBD;
-  --bs-indigo: #6610f2;
-  --bs-purple: #6f42c1;
-  --bs-pink: #d63384;
-  --bs-red: #dc3545;
-  --bs-orange: #fd7e14;
-  --bs-yellow: #ffc107;
-  --bs-green: #198754;
-  --bs-teal: #20c997;
-  --bs-cyan: #0077EA;
-  --bs-white: #fff;
-  --bs-gray: #F9F9F9;
-  --bs-gray-dark: #EEEEEEB2;
-  --bs-primary: #085EBD;
-  --bs-secondary: #F16E00;
-  --bs-success: #198754;
-  --bs-info: #0077EA;
-  --bs-warning: #ffc107;
-  --bs-danger: #dc3545;
-  --bs-light: #E1E1E1;
-  --bs-dark: #000;
-  --bs-border-color: #dee2e6;
-  --bs-font-sans-serif: 'Panchang', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-  --bs-font-monospace: Helvetica Neue LT Std, SFMono-Regular, Menlo, Monaco,
-    Consolas, "Liberation Mono", "Courier New", monospace, Comic Sans MS;
-  --bs-gradient: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.15),
-    rgba(255, 255, 255, 0)
-  );
-}
-
-/* ==========================================================================
    2. FONT FACE
    ========================================================================== */
 
 @font-face {
   font-family: 'Panchang';
   src: url('./assets/fonts/Panchang-Regular.ttf');
-  font-display: swap;
 }
 
 /* ==========================================================================
    3. BASE STYLES
    ========================================================================== */
 
-* {
+page,
+view,
+text,
+image,
+button,
+input,
+textarea {
   box-sizing: border-box;
 }
 
 page {
-  font-family: var(--bs-font-sans-serif);
+  font-family: 'Panchang', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
   font-size: 28rpx;
   font-weight: 400;
   line-height: 1.5;
@@ -325,52 +293,52 @@ page {
    15. TEXT COLOR
    ========================================================================== */
 
-.text-primary   { color: var(--bs-primary) !important; }
-.text-secondary { color: var(--bs-secondary) !important; }
-.text-success   { color: var(--bs-success) !important; }
-.text-danger    { color: var(--bs-danger) !important; }
-.text-warning   { color: var(--bs-warning) !important; }
-.text-info      { color: var(--bs-info) !important; }
+.text-primary   { color: #085EBD !important; }
+.text-secondary { color: #F16E00 !important; }
+.text-success   { color: #198754 !important; }
+.text-danger    { color: #dc3545 !important; }
+.text-warning   { color: #ffc107 !important; }
+.text-info      { color: #0077EA !important; }
 .text-white     { color: #fff !important; }
-.text-dark      { color: var(--bs-dark) !important; }
+.text-dark      { color: #000 !important; }
 .text-muted     { color: #6c757d !important; }
-.text-light     { color: var(--bs-light) !important; }
+.text-light     { color: #E1E1E1 !important; }
 
 /* ==========================================================================
    16. BACKGROUND COLOR
    ========================================================================== */
 
-.bg-primary     { background-color: var(--bs-primary) !important; }
-.bg-secondary   { background-color: var(--bs-secondary) !important; }
-.bg-success     { background-color: var(--bs-success) !important; }
-.bg-danger      { background-color: var(--bs-danger) !important; }
-.bg-warning     { background-color: var(--bs-warning) !important; }
-.bg-info        { background-color: var(--bs-info) !important; }
+.bg-primary     { background-color: #085EBD !important; }
+.bg-secondary   { background-color: #F16E00 !important; }
+.bg-success     { background-color: #198754 !important; }
+.bg-danger      { background-color: #dc3545 !important; }
+.bg-warning     { background-color: #ffc107 !important; }
+.bg-info        { background-color: #0077EA !important; }
 .bg-white       { background-color: #fff !important; }
-.bg-dark        { background-color: var(--bs-dark) !important; }
-.bg-light       { background-color: var(--bs-light) !important; }
+.bg-dark        { background-color: #000 !important; }
+.bg-light       { background-color: #E1E1E1 !important; }
 .bg-transparent { background-color: transparent !important; }
 
 /* ==========================================================================
    17. BORDER
    ========================================================================== */
 
-.border        { border: 2rpx solid var(--bs-border-color) !important; }
+.border        { border: 2rpx solid #dee2e6 !important; }
 .border-0      { border: 0 !important; }
-.border-top    { border-top: 2rpx solid var(--bs-border-color) !important; }
-.border-bottom { border-bottom: 2rpx solid var(--bs-border-color) !important; }
-.border-start  { border-left: 2rpx solid var(--bs-border-color) !important; }
-.border-end    { border-right: 2rpx solid var(--bs-border-color) !important; }
+.border-top    { border-top: 2rpx solid #dee2e6 !important; }
+.border-bottom { border-bottom: 2rpx solid #dee2e6 !important; }
+.border-start  { border-left: 2rpx solid #dee2e6 !important; }
+.border-end    { border-right: 2rpx solid #dee2e6 !important; }
 
-.border-primary   { border-color: var(--bs-primary) !important; }
-.border-secondary { border-color: var(--bs-secondary) !important; }
-.border-success   { border-color: var(--bs-success) !important; }
-.border-danger    { border-color: var(--bs-danger) !important; }
-.border-warning   { border-color: var(--bs-warning) !important; }
-.border-info      { border-color: var(--bs-info) !important; }
+.border-primary   { border-color: #085EBD !important; }
+.border-secondary { border-color: #F16E00 !important; }
+.border-success   { border-color: #198754 !important; }
+.border-danger    { border-color: #dc3545 !important; }
+.border-warning   { border-color: #ffc107 !important; }
+.border-info      { border-color: #0077EA !important; }
 .border-white     { border-color: #fff !important; }
-.border-dark      { border-color: var(--bs-dark) !important; }
-.border-light     { border-color: var(--bs-light) !important; }
+.border-dark      { border-color: #000 !important; }
+.border-light     { border-color: #E1E1E1 !important; }
 
 /* ==========================================================================
    18. BORDER RADIUS
@@ -451,7 +419,6 @@ page {
    ========================================================================== */
 
 .ellepsissed {
-  max-width: 30ch;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -464,10 +431,5 @@ page {
 }
 
 .scrollable {
-  scrollbar-width: none;
 }
 
-.scrollable::-webkit-scrollbar,
-.menu-tabs::-webkit-scrollbar {
-  display: none;
-}

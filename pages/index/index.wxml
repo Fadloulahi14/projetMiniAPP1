@@ -1,89 +1,97 @@
-<view class="d-flex flex-column w-100" style="min-height: 100vh; background: #f8f9fa;">
-  <!-- Custom Navigation Bar -->
-  <app-nav-bar title="TCMPP Boilerplate" showBack="{{ false }}" />
+<!-- 
+  Le container principal de la page
+  Toutes les variables {{ }} viennent de data dans index.js 
+-->
+<view class="page-container">
 
-  <!-- Page Content -->
-  <view class="d-flex flex-column gap-3 p-3" style="flex: 1;">
+  <!-- ===== HEADER ===== -->
+  <view class="header">
+    <text class="header-title">🛍️ Boutique</text>
 
-    <!-- Welcome Section -->
-    <view class="d-flex flex-column gap-2" style="padding: 32rpx 0;">
-      <app-typography size="24" weight="700" color="#333">
-        Welcome, {{ userName }}
-      </app-typography>
-
-      <app-typography size="14" color="#666">
-        This boilerplate provides production-ready patterns for TCMPP mini-apps.
-      </app-typography>
-    </view>
-
-    <!-- Feature Cards -->
-    <app-card>
-      <view class="d-flex flex-column gap-2 p-3">
-        <app-typography size="16" weight="600" color="#333">
-          EventBus State Management
-        </app-typography>
-        <app-typography size="13" color="#666">
-          Cross-page communication with state history, middleware, and namespaces.
-        </app-typography>
-      </view>
-    </app-card>
-
-    <app-card>
-      <view class="d-flex flex-column gap-2 p-3">
-        <app-typography size="16" weight="600" color="#333">
-          HTTP Client + Auth
-        </app-typography>
-        <app-typography size="13" color="#666">
-          Session tracking, auto-authentication, unified response format.
-        </app-typography>
-      </view>
-    </app-card>
-
-    <app-card>
-      <view class="d-flex flex-column gap-2 p-3">
-        <app-typography size="16" weight="600" color="#333">
-          Data Transformation (Sculpt)
-        </app-typography>
-        <app-typography size="13" color="#666">
-          Declarative JSON mapping for clean API response transformation.
-        </app-typography>
-      </view>
-    </app-card>
-
-    <!-- Action Buttons -->
-    <view class="d-flex flex-column gap-2" style="margin-top: 16rpx;">
-      <app-button type="primary" bind:onPress="handleNavigateDemo">
-        View Component Demo
-      </app-button>
-
-      <app-button type="secondary" bind:onPress="handleToggleModal">
-        Open Modal
-      </app-button>
+    <!-- 
+      Le panier — affiche le nombre d'articles
+      {{ panierCount }} sera mis à jour par setData()
+    -->
+    <view class="panier-badge">
+      <text class="panier-icon">🛒</text>
+      <text class="panier-count">{{ panierCount }}</text>
     </view>
   </view>
 
-  <!-- Modal Demo -->
-  <app-modal
-    visible="{{ showModal }}"
-    placement="center"
-    size="md"
-    hasHeader="{{ true }}"
-    hasContent="{{ true }}"
-    hasFooter="{{ true }}"
-    bind:close="handleCloseModal"
-  >
-    <view slot="header">
-      <app-typography size="16" weight="700">Modal Title</app-typography>
+  <!-- ===== ETAT CHARGEMENT ===== -->
+  <!-- 
+    wx:if → affiche cet élément SEULEMENT si isLoading est true
+    Pendant que l'API charge, on montre ce message
+  -->
+  <view wx:if="{{ isLoading }}" class="loading-container">
+    <text class="loading-text">Chargement des produits...</text>
+  </view>
+
+  <!-- ===== ETAT ERREUR ===== -->
+  <!-- 
+    wx:elif → si pas en chargement ET hasError est true
+  -->
+  <view wx:elif="{{ hasError }}" class="error-container">
+    <text class="error-text">❌ Erreur de chargement</text>
+    <app-button 
+      label="Réessayer" 
+      bind:tap="chargerProduits"
+    />
+  </view>
+
+  <!-- ===== LISTE PRODUITS ===== -->
+  <!-- 
+    wx:else → si pas en chargement ET pas d'erreur
+    wx:for → boucle sur le tableau produits
+    wx:key → identifiant unique pour chaque élément (performance)
+  -->
+  <view wx:else class="produits-container">
+
+    <!-- 
+      wx:for="{{ produits }}" → répète ce bloc pour chaque produit
+      item → l'objet produit courant (automatique)
+      index → l'index courant 0, 1, 2... (automatique)
+    -->
+    <app-card 
+      wx:for="{{ produits }}" 
+      wx:key="id"
+      class="produit-card"
+    >
+      <!-- Image du produit -->
+      <image 
+        class="produit-image" 
+        src="{{ item.image }}" 
+        mode="aspectFill"
+      />
+
+      <!-- Infos produit -->
+      <view class="produit-info">
+        <text class="produit-nom">{{ item.nom }}</text>
+        <text class="produit-prix">{{ item.prix }} FCFA</text>
+        <text class="produit-description">{{ item.description }}</text>
+      </view>
+
+      <!-- 
+        Bouton ajouter au panier
+        data-id="{{ item.id }}" → passe l'id du produit au gestionnaire
+        bind:tap → quand l'utilisateur appuie
+      -->
+      <app-button
+      class="app-button"
+        label="Ajouter au panier"
+        data-id="{{ item.id }}"
+        data-nom="{{ item.nom }}"
+        data-prix="{{ item.prix }}"
+        bind:tap="ajouterAuPanier"
+      >Ajouter au panier</app-button>
+      
+    </app-card>
+
+    <!-- Message si aucun produit -->
+    <view wx:if="{{ produits.length === 0 }}" class="empty-container">
+      <text class="empty-text">Aucun produit disponible</text>
     </view>
-    <view slot="content">
-      <app-typography size="14" color="#666">
-        This is a reusable modal component. It supports center and bottom sheet placement, backdrop blur, and header/content/footer slots.
-      </app-typography>
-    </view>
-    <view slot="footer">
-      <app-button type="primary" bind:onPress="handleCloseModal">
-        Close
-      </app-button>
-    </view>
-  </app-modal>
+
+  </view>
+
 </view>

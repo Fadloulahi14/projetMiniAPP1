@@ -2,11 +2,6 @@
    BUTTON SYSTEM
    ============================================================================ */
 
-:host {
-  display: block;
-  width: 100%;
-}
-
 /* Reset WeChat native <button> defaults */
 .osn-btn-primary,
 .osn-btn-secondary {
@@ -17,10 +12,6 @@
   width: 100% !important;
   -webkit-appearance: none;
 }
-.osn-btn-primary::after,
-.osn-btn-secondary::after {
-  border: none;
-}
 
 /* --- PRIMARY BUTTON --- */
 .osn-btn-primary {
@@ -28,11 +19,11 @@
   padding: 24rpx 0 !important;
   border: none;
   border-radius: 16rpx;
-  background: var(--bs-primary, #085EBD);
+  background: #085EBD;
   color: #fff;
   font-size: 28rpx;
   font-weight: 700;
-  letter-spacing: 0.02em;
+  letter-spacing: 1rpx;
   text-align: center;
   box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
   position: relative;
@@ -57,13 +48,13 @@
 .osn-btn-secondary {
   width: 100%;
   padding: 24rpx 0 !important;
-  border: 2rpx solid var(--bs-dark, #333);
+  border: 2rpx solid #333;
   border-radius: 16rpx;
   background: transparent;
-  color: var(--bs-dark, #333);
+  color: #333;
   font-size: 28rpx;
   font-weight: 700;
-  letter-spacing: 0.02em;
+  letter-spacing: 1rpx;
   text-align: center;
   box-shadow: none;
   position: relative;
@@ -101,7 +92,7 @@
 
 .osn-btn-secondary .osn-spinner {
   border-color: rgba(0, 0, 0, 0.15);
-  border-top-color: var(--bs-dark, #333);
+  border-top-color: #333;
 }
 
 @keyframes spin {

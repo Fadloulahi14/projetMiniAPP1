@@ -1,91 +1,91 @@
-# Project Architecture
+# Architecture du Projet
 
-## High-Level Overview
+## Vue d'Ensemble
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
 │                          app.js                               │
-│  EventBus (Bus) · initPromise · Error Handlers · Network     │
+│  EventBus (Bus) · initPromise · Gestionnaires d'Erreurs · Réseau │
 └──────────────┬───────────────────────────────┬───────────────┘
-               │                               │
-    ┌──────────▼──────────┐         ┌──────────▼──────────┐
-    │       Pages          │         │     Components       │
-    │  pages/index/        │         │  components/ui/      │
-    │  pages/demo/         │         │  button, modal,      │
-    │                      │         │  nav-bar, stepper... │
-    └──────────┬───────────┘         └─────────────────────┘
-               │
-    ┌──────────▼──────────────────────────────────────────┐
-    │                    Utils Layer                        │
-    │                                                      │
-    │  ┌─────────┐  ┌──────────┐  ┌────────────────────┐  │
-    │  │ EventBus │  │ BackendAPI│  │  JSON Sculpt       │  │
-    │  │ (state)  │  │ (service) │  │  (transformation)  │  │
-    │  └─────────┘  └─────┬─────┘  └────────────────────┘  │
-    │                      │                                │
-    │            ┌─────────┼─────────┐                      │
-    │            │         │         │                      │
-    │      ┌─────▼───┐ ┌──▼────┐ ┌──▼──────────┐          │
-    │      │ auth.js  │ │http.js│ │ native.js   │          │
-    │      │ (OAuth2) │ │(HTTP) │ │ (plugins)   │          │
-    │      └──────────┘ └───────┘ └─────────────┘          │
-    │                                                      │
-    │  storage.js · formatters/ · helpers/ · behaviors/    │
-    │  wxs/ · constants/ · config.js                       │
-    └──────────────────────────────────────────────────────┘
+                │                               │
+     ┌──────────▼──────────┐         ┌──────────▼──────────┐
+     │       Pages          │         │     Composants       │
+     │  pages/index/        │         │  components/ui/      │
+     │  pages/demo/         │         │  button, modal,      │
+     │                      │         │  nav-bar, stepper... │
+     └──────────┬───────────┘         └─────────────────────┘
+                │
+     ┌──────────▼──────────────────────────────────────────┐
+     │                    Couche Utils                       │
+     │                                                      │
+     │  ┌─────────┐  ┌──────────┐  ┌────────────────────┐  │
+     │  │ EventBus │  │ BackendAPI│  │  JSON Sculpt       │  │
+     │  │ (état)   │  │ (service) │  │  (transformation)  │  │
+     │  └─────────┘  └─────┬─────┘  └────────────────────┘  │
+     │                      │                                │
+     │            ┌─────────┼─────────┐                      │
+     │            │         │         │                      │
+     │      ┌─────▼───┐ ┌──▼────┐ ┌──▼──────────┐          │
+     │      │ auth.js  │ │http.js│ │ native.js   │          │
+     │      │ (OAuth2) │ │(HTTP)  │ │ (plugins)  │          │
+     │      └──────────┘ └───────┘ └─────────────┘          │
+     │                                                      │
+     │  storage.js · formatters/ · helpers/ · behaviors/    │
+     │  wxs/ · constants/ · config.js                       │
+     └──────────────────────────────────────────────────────┘
 ```
 
-## Data Flow: App Launch → First Render
+## Flux de Données : Lancement de l'App → Premier Rendu
 
 ```
-1. App() constructor
+1. Constructeur App()
    └─► onLaunch()
        ├─► checkForUpdates()              // wx.getUpdateManager
        ├─► setupNetworkListener()          // wx.onNetworkStatusChange
        │   └─► Bus.setState('network.connected', true/false)
        │
-       └─► initializeApp()  ──stored as──► globalData.initPromise
-           ├─► nativeService.getUserInfos()   // with retry + backoff
+       └─► initializeApp()  ──stocké comme──► globalData.initPromise
+           ├─► nativeService.getUserInfos()   // avec retry + backoff
            │   └─► invokePlugin('userInfos')  // wx.invokeNativePlugin
            ├─► Bus.setState('user.data', { msisdn, fullName })
            └─► Bus.emit('user.loaded')
 
 2. Page.onLoad()
-   └─► await app.globalData.initPromise   // blocks until init completes
-       └─► Bus.getState('user.data')      // read current state
-       └─► Bus.onState('user.data', cb)   // subscribe to changes
-       └─► this.setData({ ... })          // render
+   └─► await app.globalData.initPromise   // bloque jusqu'à la fin de l'init
+       └─► Bus.getState('user.data')      // lit l'état actuel
+       └─► Bus.onState('user.data', cb)   // s'abonne aux changements
+       └─► this.setData({ ... })          // rend
 ```
 
-## Data Flow: API Call
+## Flux de Données : Appel API
 
 ```
-Page method
-  └─► backendAPI.getItems()
-      ├─► authenticate()
-      │   ├─► Check cached token in wx.getStorageSync
-      │   │   └─► Valid? Return cached token
-      │   └─► Expired? POST to AUTH_URL
-      │       └─► Cache new token + set expiry
-      │       └─► httpClient.setToken(token)
-      │
-      ├─► httpClient.get('/items', { query })
-      │   └─► wx.request({
-      │         headers: {
-      │           Authorization: 'Bearer <token>',
-      │           X-Client-Ref: '<session-id>',
-      │           X-Request-Id: '<session-id>-<count>'
-      │         }
-      │       })
-      │   └─► Returns { success, data, error, headers, status }
-      │
-      └─► sculpt.data({ data: res.data, to: Schema })
-          └─► Transformed, typed domain objects
+Méthode Page
+   └─► backendAPI.getItems()
+       ├─► authenticate()
+       │   ├─► Vérifier le token en cache dans wx.getStorageSync
+       │   │   └─► Valide ? Retourner le token en cache
+       │   └─► Expiré ? POST vers AUTH_URL
+       │       └─► Mettre en cache le nouveau token + définir expiration
+       │       └─► httpClient.setToken(token)
+       │
+       ├─► httpClient.get('/items', { query })
+       │   └─► wx.request({
+       │         headers: {
+       │           Authorization: 'Bearer <token>',
+       │           X-Client-Ref: '<session-id>',
+       │           X-Request-Id: '<session-id>-<count>'
+       │         }
+       │       })
+       │   └─► Retourne { success, data, error, headers, status }
+       │
+       └─► sculpt.data({ data: res.data, to: Schema })
+           └─► Objets de domaine transformés et typés
 ```
 
-## State Management: EventBus
+## Gestion d'État : EventBus
 
-The EventBus (singleton `Bus`) is the single source of truth for shared app state.
+L'EventBus (singletons `Bus`) est la source unique de vérité pour l'état partagé de l'application.
 
 ```
 ┌─────────────┐                    ┌──────────────┐
@@ -96,16 +96,16 @@ The EventBus (singleton `Bus`) is the single source of truth for shared app stat
 │             │                    │  setData()   │
 └─────────────┘                    └──────────────┘
                                           │
-              Bus.emit('user.loaded')     │
-              ─────────────────────►  Bus.on() handler
+               Bus.emit('user.loaded')     │
+               ─────────────────────►  Gestionnaire Bus.on()
 ```
 
-**Two subscription patterns in this boilerplate:**
+**Deux modèles d'abonnement dans ce boilerplate :**
 
-1. **Manual** (pages/index) — Direct `Bus.onState()` + cleanup in `onUnload`
-2. **Helper-based** (pages/demo) — `createPageHelpers(this, bindings)` auto-subscribes
+1. **Manuel** (pages/index) — `Bus.onState()` direct + nettoyage dans `onUnload`
+2. **Basé sur l'aide** (pages/demo) — `createPageHelpers(this, bindings)` auto-abonne
 
-## Module Dependency Graph
+## Graphe de Dépendances des Modules
 
 ```
 app.js
@@ -120,7 +120,7 @@ utils/apis/index.js (BackendAPI)
   ├── utils/apis/auth.js             (authenticate)
   ├── utils/apis/http.js             (httpClient)
   ├── utils/json-sculpt/sculpt.js    (sculpt)
-  └── utils/mappers/*.sculpt.js      (schemas)
+  └── utils/mappers/*.sculpt.js      (schémas)
 
 utils/apis/auth.js
   ├── utils/apis/http.js             (httpClient)
@@ -132,30 +132,30 @@ utils/apis/http.js
   └── utils/constants/index.js       (HTTP_CONFIG)
 ```
 
-## Error Handling Strategy
+## Stratégie de Gestion des Erreurs
 
-| Layer | Mechanism | Catches |
-|-------|-----------|---------|
-| `app.js onError` | Global sync handler | Uncaught errors from any page |
-| `app.js onUnhandledRejection` | Global async handler | Forgotten `.catch()` on Promises |
-| `app.js onPageNotFound` | 404 handler | Navigation to non-existent pages |
-| `loadingBehavior.withLoading()` | Page-level try/catch | Async operations with UI feedback |
-| `retryAsync()` | Retry with backoff | Flaky API calls |
-| `withRetry()` | Native plugin retry | Native plugin timing issues |
-| `httpClient` | Unified response format | HTTP errors → `{ success: false, error }` |
-| `storage.js` | Silent try/catch | Storage quota and corruption |
+| Couche | Mécanisme | Attrape |
+|--------|-----------|---------|
+| `app.js onError` | Gestionnaire synchrone global | Erreurs non catchées de toute page |
+| `app.js onUnhandledRejection` | Gestionnaire asynchrone global | `.catch()` oublié sur les Promises |
+| `app.js onPageNotFound` | Gestionnaire 404 | Navigation vers des pages inexistantes |
+| `loadingBehavior.withLoading()` | try/catch au niveau page | Opérations asynchrones avec retour UI |
+| `retryAsync()` | Retry avec backoff | Appels API instables |
+| `withRetry()` | Retry de plugin natif | Problèmes de timing des plugins natifs |
+| `httpClient` | Format de réponse unifié | Erreurs HTTP → `{ success: false, error }` |
+| `storage.js` | try/catch silencieux | Quota de stockage et corruption |
 
-## File Naming Conventions
+## Conventions de Nommage de Fichiers
 
-| Pattern | Example | Used For |
-|---------|---------|----------|
-| `index.js` in folder | `components/ui/button/index.js` | Components, modules |
-| 4-file set | `.js`, `.wxml`, `.wxss`, `.json` | Pages and components |
-| `*.sculpt.js` | `mappers/example.sculpt.js` | Sculpt transformation schemas |
-| `.wxs` | `wxs/filters.wxs` | WXS view-thread scripts |
+| Modèle | Exemple | Utilisé Pour |
+|--------|---------|--------------|
+| `index.js` dans dossier | `components/ui/button/index.js` | Composants, modules |
+| Ensemble de 4 fichiers | `.js`, `.wxml`, `.wxss`, `.json` | Pages et composants |
+| `*.sculpt.js` | `mappers/example.sculpt.js` | Schémas de transformation Sculpt |
+| `.wxs` | `wxs/filters.wxs` | Scripts WXS du thread de rendu |
 
-## See Also
+## Voir Aussi
 
-- [App Lifecycle](04-app-lifecycle.md) — Detailed app.js walkthrough
-- [EventBus Guide](05-eventbus-guide.md) — Complete state management API
-- [API Layer](06-api-layer.md) — HTTP, auth, and native service details
+- [Cycle de Vie de l'App](04-app-lifecycle.md) — Visite détaillée de app.js
+- [Guide EventBus](05-eventbus-guide.md) — API complète de gestion d'état
+- [Couche API](06-api-layer.md) — Détails HTTP, auth et service natif

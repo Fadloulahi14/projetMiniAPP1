@@ -1,104 +1,104 @@
-# Getting Started
+# Premiers Pas
 
-## Prerequisites
+## Prérequis
 
-| Tool | Purpose |
-|------|---------|
-| [TCMPP Developer Tools](https://cloud.tencent.com/product/tcmpp) | IDE, simulator, debugger |
-| Git | Version control |
-| A code editor (VS Code recommended) | Editing (DevTools editor works too) |
+| Outil | Utilisation |
+|-------|-------------|
+| [TCMPP Developer Tools](https://cloud.tencent.com/product/tcmpp) | IDE, simulateur, débogueur |
+| Git | Contrôle de version |
+| Un éditeur de code (VS Code recommandé) | Édition (l'éditeur DevTools fonctionne aussi) |
 
-## Setup
+## Configuration
 
 ```bash
-git clone <repository-url>
+git clone <url-du-dépôt>
 ```
 
-Open TCMPP Developer Tools → Import Project → Select the `tcmpp-boilerplate` folder.
+Ouvrez TCMPP Developer Tools → Importer un Projet → Sélectionnez le dossier `tcmpp-boilerplate`.
 
-The project compiles automatically. You should see the home page with a navigation bar and component demos.
+Le projet se compile automatiquement. Vous devriez voir la page d'accueil avec une barre de navigation et des démos de composants.
 
-## Project Configuration
+## Configuration du Projet
 
 ### project.config.json
 
-| Setting | Value | What It Does |
-|---------|-------|-------------|
-| `es6` | `true` | Transpiles ES2015+ to ES5 for compatibility |
-| `nodeModules` | `true` | Enables npm package support |
-| `minified` | `true` | Minifies output for smaller builds |
-| `uploadWithSourceMap` | `true` | Includes source maps for debugging |
-| `urlCheck` | `false` | Disables domain whitelist check (dev only) |
-| `TCMPPLibVersion` | `2.2.4` | TCMPP SDK version |
-| `SASappid` | `mp1vl29c7w1xcmbo` | **Change this** to your app ID |
+| Paramètre | Valeur | Ce qu'il fait |
+|-----------|--------|---------------|
+| `es6` | `true` | Transpile ES2015+ vers ES5 pour la compatibilité |
+| `nodeModules` | `true` | Active le support des packages npm |
+| `minified` | `true` | Minifie les sorties pour des builds plus petits |
+| `uploadWithSourceMap` | `true` | Inclut les source maps pour le débogage |
+| `urlCheck` | `false` | Désactive la vérification de liste blanche de domaines (dev uniquement) |
+| `TCMPPLibVersion` | `2.2.4` | Version du SDK TCMPP |
+| `SASappid` | `mp1vl29c7w1xcmbo` | **Changez ceci** pour votre ID d'application |
 
-### utils/config.js — Environment Configuration
+### utils/config.js — Configuration de l'Environnement
 
 ```javascript
-const ENV = 'development'; // Switch to 'production' for release
+const ENV = 'development'; // Passer à 'production' pour la release
 
 const CONFIG = {
   development: {
-    BASE_URL: 'http://localhost:3000/api',    // Your dev API
-    CLIENT_ID: 'your-client-id',              // OAuth2 credentials
+    BASE_URL: 'http://localhost:3000/api',    // Votre API dev
+    CLIENT_ID: 'your-client-id',              // Identifiants OAuth2
     CLIENT_SECRET: 'your-client-secret',
     // ...
   },
   production: {
-    BASE_URL: 'https://api.example.com',      // Your prod API
+    BASE_URL: 'https://api.example.com',      // Votre API prod
     // ...
   },
 };
 ```
 
-**First thing to do:** Update `config.js` with your actual API URLs and OAuth2 credentials.
+**Première chose à faire :** Mettez à jour `config.js` avec vos vraies URLs d'API et identifiants OAuth2.
 
 ### utils/constants/index.js
 
-Set `__DEV__` to `false` before deploying:
+Définissez `__DEV__` à `false` avant le déploiement :
 ```javascript
-export const __DEV__ = true; // Set to false for production
+export const __DEV__ = true; // Mettre à false pour la production
 ```
 
-## First Changes
+## Premiers Changements
 
-### 1. Change the app title
+### 1. Changer le titre de l'application
 
-Edit `app.json`:
+Modifiez `app.json` :
 ```json
 {
   "window": {
-    "navigationBarTitleText": "Your App Name"
+    "navigationBarTitleText": "Nom de Votre Application"
   }
 }
 ```
 
-### 2. Update your API configuration
+### 2. Mettre à jour votre configuration API
 
-Edit `utils/config.js` with your real API URLs and credentials.
+Modifiez `utils/config.js` avec vos vraies URLs d'API et identifiants.
 
-### 3. Add a new page
+### 3. Ajouter une nouvelle page
 
-See [Recipes: Adding a New Page](14-recipes.md#adding-a-new-page) for the step-by-step template.
+Voir [Recettes : Ajouter une Nouvelle Page](14-recipes.md#adding-a-new-page) pour le modèle étape par étape.
 
-## Development Workflow
+## Flux de Travail de Développement
 
-1. **Edit files** in VS Code or TCMPP DevTools
-2. **DevTools auto-reloads** on save (hot refresh, not hot module replacement)
-3. **Console output** appears in the DevTools Console panel
-4. **Debug panel** shows network requests, storage, and app data
-5. **Remote debugging** is enabled (`remoteDebugLogEnable: true` in project.config.json)
+1. **Modifier les fichiers** dans VS Code ou TCMPP DevTools
+2. **DevTools recharge automatiquement** à la sauvegarde (hot refresh, pas hot module replacement)
+3. **La sortie console** apparaît dans le panneau Console DevTools
+4. **Le panneau Debug** montre les requêtes réseau, le stockage et les données de l'application
+5. **Le débogage distant** est activé (`remoteDebugLogEnable: true` dans project.config.json)
 
-### DevTools Tips
+### Astuces DevTools
 
-- **Compile button** (Ctrl/Cmd + B): Force recompile
-- **Preview button**: Generate QR code for real device testing
-- **Audits panel**: Performance and best practice checks
-- **Storage panel**: View/edit wx.getStorageSync data
-- **Network panel**: Inspect all wx.request calls
+- **Bouton Compiler** (Ctrl/Cmd + B) : Forcer la recompilation
+- **Bouton Aperçu** : Générer un QR code pour les tests sur appareil réel
+- **Panneau Audits** : Vérifications de performance et bonnes pratiques
+- **Panneau Stockage** : Voir/modifier les données wx.getStorageSync
+- **Panneau Réseau** : Inspecter tous les appels wx.request
 
-## See Also
+## Voir Aussi
 
-- [Mini-Program Concepts](01-mini-program-concepts.md) — If you're new to mini-programs
-- [Project Architecture](02-project-architecture.md) — Understand how the pieces connect
-- [Recipes](14-recipes.md) — Step-by-step tasks
+- [Concepts des Mini-Programmes](01-mini-program-concepts.md) — Si vous êtes nouveau dans les mini-programmes
+- [Architecture du Projet](02-project-architecture.md) — Comprendre comment les pièces se connectent
+- [Recettes](14-recipes.md) — Tâches étape par étape

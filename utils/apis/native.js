@@ -10,6 +10,42 @@ import { __DEV__ } from '../constants/index.js';
 // Native plugin may not be ready on app launch — retry with backoff
 // ============================================================================
 
+const getDeviceInfo = () => {
+  try {
+    return typeof wx !== 'undefined' && typeof wx.getDeviceInfo === 'function' ? wx.getDeviceInfo() : null;
+  } catch (error) {
+    return null;
+  }
+};
+
+const getAppBaseInfo = () => {
+  try {
+    return typeof wx !== 'undefined' && typeof wx.getAppBaseInfo === 'function' ? wx.getAppBaseInfo() : null;
+  } catch (error) {
+    return null;
+  }
+};
+
+const isDevTools = () => {
+  const deviceInfo = getDeviceInfo();
+  const baseInfo = getAppBaseInfo();
+  return deviceInfo?.platform === 'devtools' || baseInfo?.environment === 'devtools';
+};
+
+const isDevMode = () => {
+  const nodeEnv = typeof process !== 'undefined' && process.env ? process.env.NODE_ENV : '';
+  return __DEV__ || nodeEnv === 'development';
+};
+
+const isSimulator = () => isDevMode() && isDevTools();
+
+const buildDevFallback = () => ({
+  result: 'success',
+  status_code: 200,
+  data: {},
+  message: 'devtools fallback',
+});
+
 /**
  * Delays execution for the specified duration.
  * @param {number} ms - Milliseconds to wait
@@ -67,6 +103,17 @@ export const withRetry = async (fn, { maxAttempts = 3, baseDelay = 500, shouldRe
  */
 export const invokePlugin = (apiName, data = {}, { strict = true } = {}) => {
   return new Promise((resolve, reject) => {
+    if (typeof wx?.invokeNativePlugin !== 'function') {
+      if (isSimulator()) {
+        console.warn(`[DEV] wx.invokeNativePlugin unavailable in simulator, using fallback for ${apiName}`);
+        const fallback = buildDevFallback();
+        resolve(strict ? fallback.data : fallback);
+        return;
+      }
+      reject(new Error('wx.invokeNativePlugin is not available'));
+      return;
+    }
+
     wx.invokeNativePlugin({
       api_name: apiName,
       data,
@@ -110,6 +157,14 @@ export const invokePlugin = (apiName, data = {}, { strict = true } = {}) => {
  */
 export const getUserInfos = async () => {
   try {
+    if (isSimulator()) {
+      console.warn('[DEV] native userInfos not available in simulator, using mock user');
+      return {
+        msisdn: '770000000',
+        fullName: 'Dev User',
+      };
+    }
+
     await delay(300);
 
     const res = await withRetry(
@@ -136,7 +191,11 @@ export const getUserInfos = async () => {
       fullName: user ? `${user.firstName} ${user.lastName}` : null,
     };
   } catch (error) {
-    console.warn('[Native] getUserInfos failed after retries:', error.message);
+    if (isDevMode()) {
+      console.warn('[DEV] getUserInfos failed after retries:', error.message);
+    } else {
+      console.warn('[Native] getUserInfos failed after retries:', error.message);
+    }
 
     if (__DEV__) {
       return {

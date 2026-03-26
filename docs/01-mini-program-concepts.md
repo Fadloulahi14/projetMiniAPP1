@@ -1,218 +1,219 @@
-# Mini-Program Concepts for Web Developers
+# Concepts des Mini-Programmes pour Développeurs Web
 
-If you've built web apps but never touched a mini-program, this is your starting point. Everything here applies to both WeChat Mini Programs and TCMPP.
+Si vous avez développé des applications web mais que vous n'avez jamais touché à un mini-programme, c'est votre point de départ. Tout ce qui est présenté ici s'applique aux Mini-Programmes WeChat et TCMPP.
 
-## What Is a Mini-Program?
+## Qu'est-ce qu'un Mini-Programme ?
 
-A mini-program is an app-within-an-app. It runs inside a host app (like WeChat or a TCMPP-powered app) and uses the host's runtime instead of a browser.
+Un mini-programme est une application dans une application. Il s'exécute à l'intérieur d'une application hôte (comme WeChat ou une application alimentée par TCMPP) et utilise le runtime de l'hôte au lieu d'un navigateur.
 
-| Feature | Web App | Mini-Program | React Native |
-|---------|---------|-------------|--------------|
-| Runs in | Browser | Host app (WeChat, TCMPP) | Native shell |
-| DOM access | Yes | No | No |
-| File size limit | None | 20 MB | None |
-| Installation | None (URL) | None (scanned/shared) | App store |
-| APIs | Web APIs | wx.* APIs | Native bridges |
-| Offline | Service Workers | Built-in caching | Built-in |
+| Fonctionnalité | Application Web | Mini-Programme | React Native |
+|----------------|-----------------|----------------|--------------|
+| S'exécute dans | Navigateur | Application hôte (WeChat, TCMPP) | Shell natif |
+| Accès au DOM | Oui | Non | Non |
+| Limite de taille de fichier | Aucune | 20 Mo | Aucune |
+| Installation | Aucune (URL) | Aucune (scannée/partagée) | App Store |
+| API | API Web | API wx.* | Ponts natifs |
+| Hors ligne | Service Workers | Cache intégré | Intégré |
 
-## The Dual-Thread Runtime
+## Le Runtime à Deux Threads
 
-This is the single most important concept. Mini-programs run on **two threads**:
+C'est le concept le plus important. Les mini-programmes s'exécutent sur **deux threads** :
 
 ```
 ┌─────────────────┐          ┌──────────────────┐
-│   JS Thread      │          │   Render Thread   │
-│   (Logic)        │          │   (View)          │
-│                  │          │                   │
-│  Page data       │──────────│  WXML templates   │
-│  Event handlers  │ setData()│  WXSS styles      │
-│  API calls       │──────────│  WXS scripts      │
-│  Business logic  │          │                   │
+│   Thread JS     │          │   Thread Rendu   │
+│   (Logique)     │          │   (Vue)          │
+│                 │          │                  │
+│  Données page   │──────────│  Modèles WXML    │
+│  Gestionnaires  │ setData()│  Styles WXSS     │
+│  d'événements   │──────────│  Scripts WXS     │
+│  Appels API     │          │                  │
+│  Logique métier │          │                  │
 └─────────────────┘          └──────────────────┘
 ```
 
-**What this means:**
-- You **cannot** touch the DOM. There is no `document.querySelector`.
-- The only way to update the UI is `this.setData({ key: value })`.
-- `setData()` serializes data, sends it across threads, and triggers a re-render.
-- Fewer `setData()` calls = better performance. Batch your updates.
+**Ce que cela signifie :**
+- Vous **ne pouvez pas** manipuler le DOM. Il n'y a pas de `document.querySelector`.
+- La seule façon de mettre à jour l'UI est `this.setData({ key: value })`.
+- `setData()` sérialise les données, les envoie à travers les threads et déclenche un re-rendu.
+- Moins d'appels à `setData()` = meilleures performances. Regroupez vos mises à jour.
 
-## File Types
+## Types de Fichiers
 
-Every page and component consists of up to 4 files:
+Chaque page et composant se compose de jusqu'à 4 fichiers :
 
-| Extension | Purpose | Web Equivalent |
+| Extension | Purpose | Équivalent Web |
 |-----------|---------|---------------|
-| `.js` | Logic, data, event handlers | JavaScript |
-| `.wxml` | Templates (XML-based markup) | HTML/JSX |
-| `.wxss` | Styles (CSS subset) | CSS |
-| `.json` | Configuration (component declarations, window settings) | N/A |
-| `.wxs` | View-thread scripts (ES5 only, fast) | N/A (see below) |
+| `.js` | Logique, données, gestionnaires d'événements | JavaScript |
+| `.wxml` | Modèles (balisage basé sur XML) | HTML/JSX |
+| `.wxss` | Styles (sous-ensemble de CSS) | CSS |
+| `.json` | Configuration (déclarations de composants, paramètres de fenêtre) | N/A |
+| `.wxs` | Scripts du thread de rendu (ES5 uniquement, rapide) | N/A (voir ci-dessous) |
 
-### WXML — Templates
+### WXML — Modèles
 
-WXML uses directives instead of JavaScript expressions:
+WXML utilise des directives au lieu d'expressions JavaScript :
 
 ```xml
-<!-- Conditional rendering -->
-<view wx:if="{{ isLoggedIn }}">Welcome, {{ userName }}</view>
-<view wx:else>Please log in</view>
+<!-- Rendu conditionnel -->
+<view wx:if="{{ isLoggedIn }}">Bienvenue, {{ userName }}</view>
+<view wx:else>Veuillez vous connecter</view>
 
-<!-- List rendering -->
+<!-- Rendu de liste -->
 <view wx:for="{{ items }}" wx:key="id">
   {{ index }}: {{ item.name }}
 </view>
 
-<!-- Event binding -->
-<button bind:tap="handleTap">Tap me</button>
+<!-- Liaison d'événement -->
+<button bind:tap="handleTap">Appuyez ici</button>
 ```
 
 ### WXSS — Styles
 
-Standard CSS with one addition: `rpx` (responsive pixels).
+CSS standard avec un ajout : `rpx` (pixels responsifs).
 
-- **750rpx = screen width** on any device
-- On an iPhone 6 (375pt wide): `1rpx = 0.5px`
-- Use `rpx` for layout, `px` for borders and fine details
+- **750rpx = largeur de l'écran** sur n'importe quel appareil
+- Sur un iPhone 6 (375pt de large) : `1rpx = 0.5px`
+- Utilisez `rpx` pour la mise en page, `px` pour les bordures et les détails fins
 
 ```css
 .card {
-  width: 690rpx;      /* ~92% of screen width */
+  width: 690rpx;      /* ~92% de la largeur de l'écran */
   padding: 24rpx;
-  border: 1px solid #eee;  /* fine detail: use px */
+  border: 1px solid #eee;  /* détail fin : utiliser px */
   border-radius: 16rpx;
 }
 ```
 
-### WXS — View-Thread Scripts
+### WXS — Scripts du Thread de Rendu
 
-WXS runs in the **render thread** (not the JS thread), making it faster for display-only logic like formatting dates or computing CSS classes.
+WXS s'exécute dans le **thread de rendu** (pas le thread JS), ce qui le rend plus rapide pour la logique d'affichage seule comme le formatage de dates ou le calcul de classes CSS.
 
-**Constraints:**
-- ES5 only (no arrow functions, no `let`/`const`, no template literals)
-- Cannot call `wx.*` APIs
-- Cannot import `.js` modules
-- Read-only — cannot modify page data
+**Contraintes :**
+- ES5 uniquement (pas de fonctions fléchées, pas de `let`/`const`, pas de littéraux de modèle)
+- Impossible d'appeler les API `wx.*`
+- Impossible d'importer des modules `.js`
+- Lecture seule — ne peut pas modifier les données de la page
 
-See [WXS Filters Guide](10-wxs-filters.md) for details.
+Voir [Guide des Filtres WXS](10-wxs-filters.md) pour les détails.
 
-## Page Lifecycle
-
-```
-onLoad(options)     Called once when page is created (receives URL query params)
-    │
-    ▼
-onShow()            Called every time page becomes visible (also on tab switch back)
-    │
-    ▼
-onReady()           Called once when first render completes (DOM-equivalent ready)
-    │
-    ▼
-onHide()            Called when page is hidden (navigating away, tab switch)
-    │
-    ▼
-onUnload()          Called once when page is destroyed (navigateBack, redirectTo)
-```
-
-**Key points:**
-- `onLoad` receives query parameters: `onLoad(options)` → `options.id` for `/pages/detail/index?id=42`
-- `onShow` fires every time you come back to the page (back button, tab switch)
-- `onUnload` is where you clean up subscriptions and timers
-- `onHide` fires when navigating forward (page stays in stack) or switching tabs
-
-## Component Lifecycle
+## Cycle de Vie d'une Page
 
 ```
-created()           Instance created (no setData yet, properties not available)
+onLoad(options)     Appelé une fois lors de la création de la page (reçoit les paramètres de requête URL)
     │
     ▼
-attached()          Inserted into the page (properties available, can setData)
+onShow()            Appelé chaque fois que la page devient visible (aussi lors du retour d'onglet)
     │
     ▼
-ready()             First render complete
+onReady()           Appelé une fois lorsque le premier rendu est terminé (équivalent DOM prêt)
     │
     ▼
-detached()          Removed from page (cleanup here)
+onHide()            Appelé lorsque la page est masquée (navigation, changement d'onglet)
+    │
+    ▼
+onUnload()          Appelé une fois lorsque la page est détruite (navigateBack, redirectTo)
 ```
 
-### Component vs Page
+**Points clés :**
+- `onLoad` reçoit les paramètres de requête : `onLoad(options)` → `options.id` pour `/pages/detail/index?id=42`
+- `onShow` se déclenche chaque fois que vous revenez sur la page (bouton retour, changement d'onglet)
+- `onUnload` est l'endroit où vous nettoyez les abonnements et les minuteurs
+- `onHide` se déclenche lors de la navigation vers l'avant (page reste dans la pile) ou du changement d'onglets
+
+## Cycle de Vie d'un Composant
+
+```
+created()           Instance créée (pas encore de setData, propriétés non disponibles)
+    │
+    ▼
+attached()          Inséré dans la page (propriétés disponibles, peut utiliser setData)
+    │
+    ▼
+ready()             Premier rendu terminé
+    │
+    ▼
+detached()          Retiré de la page (nettoyage ici)
+```
+
+### Composant vs Page
 
 ```javascript
-// Page — uses Page() constructor
+// Page — utilise le constructeur Page()
 Page({
   data: { count: 0 },
-  onLoad() { /* lifecycle */ },
-  handleTap() { /* event handler */ },
+  onLoad() { /* cycle de vie */ },
+  handleTap() { /* gestionnaire d'événement */ },
 });
 
-// Component — uses Component() constructor
+// Composant — utilise le constructeur Component()
 Component({
   properties: {
-    title: { type: String, value: '' },    // external props
+    title: { type: String, value: '' },    // props externes
   },
-  data: { internal: false },                // internal state
+  data: { internal: false },                // état interne
   methods: {
-    handleTap() { /* must be inside methods */ },
+    handleTap() { /* doit être dans methods */ },
   },
   lifetimes: {
-    attached() { /* lifecycle hooks are inside lifetimes */ },
+    attached() { /* les hooks de cycle de vie sont dans lifetimes */ },
   },
 });
 ```
 
 ### Slots
 
-Components can accept child content via slots:
+Les composants peuvent accepter du contenu enfant via des slots :
 
 ```xml
-<!-- Component template (my-card.wxml) -->
+<!-- Modèle du composant (my-card.wxml) -->
 <view class="card">
   <slot name="header"></slot>
-  <slot></slot>  <!-- default slot -->
+  <slot></slot>  <!-- slot par défaut -->
 </view>
 
-<!-- Usage -->
+<!-- Utilisation -->
 <my-card>
-  <view slot="header">Title</view>
-  <text>Card body content</text>
+  <view slot="header">Titre</view>
+  <text>Contenu du corps de la carte</text>
 </my-card>
 ```
 
-Enable named slots in component JSON: `"options": { "multipleSlots": true }`
+Activez les slots nommés dans le JSON du composant : `"options": { "multipleSlots": true }`
 
 ### Behavior() — Mixins
 
-Behaviors let you share data, methods, and lifecycle hooks across pages and components:
+Les behaviors vous permettent de partager des données, des méthodes et des hooks de cycle de vie entre les pages et les composants :
 
 ```javascript
-// Shared behavior
+// Behavior partagé
 const myBehavior = Behavior({
   data: { shared: true },
   methods: { sharedMethod() { /* ... */ } },
 });
 
-// Use in a page or component
+// Utiliser dans une page ou un composant
 Page({
   behaviors: [myBehavior],
-  // Now has access to this.data.shared and this.sharedMethod()
+  // Maintenant a accès à this.data.shared et this.sharedMethod()
 });
 ```
 
-See [Behaviors Guide](11-behaviors-guide.md) for details.
+Voir [Guide des Behaviors](11-behaviors-guide.md) pour les détails.
 
-## The wx.* API Surface
+## La Surface API wx.*
 
-| Category | Examples |
-|----------|---------|
+| Catégorie | Exemples |
+|-----------|----------|
 | **Navigation** | `wx.navigateTo`, `wx.redirectTo`, `wx.switchTab`, `wx.navigateBack`, `wx.reLaunch` |
-| **Storage** | `wx.getStorageSync`, `wx.setStorageSync`, `wx.removeStorageSync`, `wx.clearStorageSync` |
-| **Network** | `wx.request`, `wx.uploadFile`, `wx.downloadFile`, `wx.connectSocket` |
+| **Stockage** | `wx.getStorageSync`, `wx.setStorageSync`, `wx.removeStorageSync`, `wx.clearStorageSync` |
+| **Réseau** | `wx.request`, `wx.uploadFile`, `wx.downloadFile`, `wx.connectSocket` |
 | **UI** | `wx.showToast`, `wx.showLoading`, `wx.showModal`, `wx.showActionSheet` |
-| **Device** | `wx.getSystemInfoSync`, `wx.getNetworkType`, `wx.onNetworkStatusChange` |
-| **Media** | `wx.chooseImage`, `wx.previewImage`, `wx.createCameraContext` |
-| **Location** | `wx.getLocation`, `wx.openLocation`, `wx.chooseLocation` |
+| **Appareil** | `wx.getSystemInfoSync`, `wx.getNetworkType`, `wx.onNetworkStatusChange` |
+| **Médias** | `wx.chooseImage`, `wx.previewImage`, `wx.createCameraContext` |
+| **Localisation** | `wx.getLocation`, `wx.openLocation`, `wx.chooseLocation` |
 
-Most `wx.*` APIs use a callback pattern:
+La plupart des API `wx.*` utilisent un modèle de callback :
 ```javascript
 wx.request({
   url: 'https://api.example.com/data',
@@ -222,50 +223,50 @@ wx.request({
 });
 ```
 
-This boilerplate wraps callbacks in Promises (see [API Layer](06-api-layer.md)).
+Ce boilerplate enveloppe les callbacks en Promises (voir [Couche API](06-api-layer.md)).
 
-## TCMPP vs Standard WeChat
+## TCMPP vs WeChat Standard
 
-TCMPP (Tencent Cloud Mini Program Platform) extends standard WeChat Mini Programs:
+TCMPP (Tencent Cloud Mini Program Platform) étend les Mini-Programmes WeChat standard :
 
-| Feature | WeChat | TCMPP |
-|---------|--------|-------|
-| Host app | WeChat only | Any app using TCMPP SDK |
-| Native plugins | Limited | `wx.invokeNativePlugin` for deep native access |
-| Distribution | WeChat ecosystem | Your own app ecosystem |
-| Dev tools | WeChat DevTools | TCMPP Developer Tools |
-| Config file | `project.config.json` | Same, with `TCMPPLibVersion` and `SASappid` fields |
+| Fonctionnalité | WeChat | TCMPP |
+|----------------|--------|-------|
+| Application hôte | WeChat uniquement | Toute application utilisant le SDK TCMPP |
+| Plugins natifs | Limités | `wx.invokeNativePlugin` pour un accès natif profond |
+| Distribution | Écosystème WeChat | Votre propre écosystème d'applications |
+| Outils de développement | WeChat DevTools | TCMPP Developer Tools |
+| Fichier de configuration | `project.config.json` | Identique, avec les champs `TCMPPLibVersion` et `SASappid` |
 
-## Web → Mini-Program Translation Table
+## Tableau de Traduction Web → Mini-Programme
 
-| Web Concept | Mini-Program Equivalent |
-|------------|----------------------|
-| `document.querySelector` | `this.selectComponent('#id')` or `wx.createSelectorQuery()` |
+| Concept Web | Équivalent Mini-Programme |
+|-------------|--------------------------|
+| `document.querySelector` | `this.selectComponent('#id')` ou `wx.createSelectorQuery()` |
 | `window.location` | `getCurrentPages()` |
 | `window.addEventListener` | `wx.onNetworkStatusChange`, etc. |
-| `localStorage` | `wx.getStorageSync` / `wx.setStorageSync` (10 MB limit) |
+| `localStorage` | `wx.getStorageSync` / `wx.setStorageSync` (limite de 10 Mo) |
 | `fetch` / `XMLHttpRequest` | `wx.request` |
 | `<a href>` | `wx.navigateTo({ url: '...' })` |
-| React Context / Redux | EventBus (this boilerplate) or `getApp().globalData` |
-| CSS Modules | `styleIsolation` option in Component |
-| `npm install` | Supported (enable `nodeModules: true` in project.config.json) |
-| Service Worker | Built-in caching (mini-programs are cached on device) |
-| `<img>` | `<image>` (different tag name!) |
-| `onclick` | `bind:tap` (different event naming!) |
-| `className` | `class` (no JSX here) |
+| React Context / Redux | EventBus (ce boilerplate) ou `getApp().globalData` |
+| Modules CSS | Option `styleIsolation` dans Component |
+| `npm install` | Supporté (activer `nodeModules: true` dans project.config.json) |
+| Service Worker | Cache intégré (les mini-programmes sont mis en cache sur l'appareil) |
+| `<img>` | `<image>` (nom de balise différent !) |
+| `onclick` | `bind:tap` (nommage d'événement différent !) |
+| `className` | `class` (pas de JSX ici) |
 
-## Common Gotchas
+## Pièges Courants
 
-1. **10-page stack limit** — `wx.navigateTo` silently fails after 10 pages. This boilerplate's [navigation helpers](12-navigation-guide.md) handle this automatically.
-2. **10 MB storage limit** — `wx.setStorageSync` throws on quota exceeded. This boilerplate's [storage wrapper](13-storage-guide.md) catches these errors.
-3. **setData() performance** — Sending large objects across threads is expensive. Only send what changed.
-4. **No hot module replacement** — The DevTools simulator does auto-refresh, but the entire page reloads.
-5. **`<image>` not `<img>`** — Different tag name from HTML.
-6. **`bind:tap` not `onclick`** — Different event syntax.
-7. **rpx not px** — Use `rpx` for responsive layouts.
+1. **Limite de pile de 10 pages** — `navigateTo` échoue silencieusement après 10 pages. Les [helpers de navigation](12-navigation-guide.md) de ce boilerplate gèrent cela automatiquement.
+2. **Limite de stockage de 10 Mo** — `wx.setStorageSync` lève une exception quand le quota est dépassé. Le [wrapper de stockage](13-storage-guide.md) de ce boilerplate capture ces erreurs.
+3. **Performance de setData()** — L'envoi d'objets volumineux à travers les threads est coûteux. Envoyez uniquement ce qui a changé.
+4. **Pas de hot module replacement** — Le simulateur DevTools fait un auto-refresh, mais la page entière se recharge.
+5. **`<image>` pas `<img>`** — Nom de balise différent de HTML.
+6. **`bind:tap` pas `onclick`** — Syntaxe d'événement différente.
+7. **rpx pas px** — Utilisez `rpx` pour les mises en page responsives.
 
-## See Also
+## Voir Aussi
 
-- [Project Architecture](02-project-architecture.md) — How this boilerplate's pieces fit together
-- [Getting Started](03-getting-started.md) — Setup and first run
-- [Glossary](16-glossary.md) — Term definitions
+- [Architecture du Projet](02-project-architecture.md) — Comment les pièces de ce boilerplate s'assemblent
+- [Premiers Pas](03-getting-started.md) — Configuration et premier lancement
+- [Glossaire](16-glossary.md) — Définitions des termes
